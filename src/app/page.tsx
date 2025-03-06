@@ -5,6 +5,9 @@ import RppgTestComponent from '@/components/rppg';
 const Page = () => {
   const [rppgdata, setRppgData] = useState<{
     bpm: number | null;
+    emotion: string | null;
+    shoulder_tilt: number | null;
+    neck_tilt: number | null;
   } | null>(null);
 
   return (
@@ -28,6 +31,15 @@ const Page = () => {
       <div className='w-full flex flex-col items-center text-center font-bold'>
         <div className='w-full'>
           BPM <span className='font-normal'>{rppgdata ? rppgdata.bpm : "No data"}</span>
+        </div>
+        <div className='w-full'>
+          Emotion <span className='font-normal'>{rppgdata ? rppgdata.emotion : "No data"}</span>
+        </div>
+        <div className='w-full'>
+          Shoulder Tilt <span className='font-normal'>{rppgdata ? rppgdata.shoulder_tilt : "No data"}</span>
+        </div>
+        <div className='w-full'>
+          Neck Tilt <span className='font-normal'>{rppgdata ? rppgdata.neck_tilt : "No data"}</span>
         </div>
       </div>
     </div>
