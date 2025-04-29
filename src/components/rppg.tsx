@@ -37,6 +37,7 @@ class RPPGJS {
         }, false);
 
         this.pc.addEventListener('iceconnectionstatechange', () => {
+            console.log("ICE connection state changed:", this.pc!.iceConnectionState);
             if (this.onPcChanged) this.onPcChanged(this.pc!);
         }, false);
 
@@ -63,7 +64,25 @@ class RPPGJS {
 
         try {
             const offer = await this.pc.createOffer();
-            await this.pc.setLocalDescription(offer);
+
+            // Modify SDP to remove RTX format before setting local description
+            let modifiedSdp = offer.sdp;
+            if (modifiedSdp) {
+                // Remove RTX format lines from SDP
+                modifiedSdp = modifiedSdp.replace(/a=rtpmap:.*rtx\/.*\r\n/g, '');
+                modifiedSdp = modifiedSdp.replace(/a=fmtp:.*apt=.*\r\n/g, '');
+
+                // Create a new offer with modified SDP
+                const modifiedOffer = new RTCSessionDescription({
+                    type: 'offer',
+                    sdp: modifiedSdp
+                });
+
+                await this.pc.setLocalDescription(modifiedOffer);
+            } else {
+                await this.pc.setLocalDescription(offer);
+            }
+            // await this.pc.setLocalDescription(offer);
 
             await new Promise<void>((resolve) => {
                 if (this.pc!.iceGatheringState === 'complete') {
@@ -91,7 +110,7 @@ class RPPGJS {
                 }),
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
+                    'Authorization': `Key ${authToken}`
                 },
                 method: 'POST'
             });
@@ -157,6 +176,7 @@ class RPPGJS {
 
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             stream.getTracks().forEach((track) => {
+                console.log('Adding track:', track , 'to peer connection', this.pc);
                 this.pc?.addTrack(track, stream);
             });
             return this.negotiate();
