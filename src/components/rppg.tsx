@@ -56,7 +56,7 @@ class RPPGJS {
     }
 
     async getAuthToken(): Promise<string> {
-        return process.env.AUTH_TOKEN || '';
+        return process.env.NEXT_PUBLIC_AUTH_TOKEN || '';
     }
 
     async negotiate(): Promise<void> {
